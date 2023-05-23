@@ -1,0 +1,23 @@
+# 排除版本控制文件和目录
+.git
+.gitignore
+
+# 排除Python字节码文件和缓存文件
+*.pyc
+__pycache__
+
+# 排除本地日志和临时文件
+logs/
+temp/
+
+# 排除测试数据和文档
+test/
+docs/
+
+# 排除其他不必要的文件和目录
+*.log
+*.swp
+.DS_Store
+checkpoints
+dataset
+test_results
