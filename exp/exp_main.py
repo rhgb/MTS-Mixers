@@ -181,7 +181,7 @@ class Exp_Main(Exp_Basic):
         return self.model
 
     def test(self, setting, test=0):
-        _, test_loader = self._get_data(flag='test')
+        test_dataset, test_loader = self._get_data(flag='test')
 
         if test:
             print('loading model')
@@ -233,8 +233,10 @@ class Exp_Main(Exp_Basic):
                     input = batch_x.detach().cpu().numpy()
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                    visual(gt, pd, os.path.join(folder_path, str(idx) + '.pdf'))
-        
+                    visual(test_dataset.inverse_transform(gt.reshape(-1, 1)),
+                           test_dataset.inverse_transform(pd.reshape(-1, 1)),
+                           os.path.join(folder_path, str(idx) + '.png'))
+
         preds = np.array(preds)
         trues = np.array(trues)
         inputx = np.array(inputx)
