@@ -175,7 +175,7 @@ class Exp_Main(Exp_Basic):
 
             adjust_learning_rate(model_optim, epoch + 1, self.args)
 
-        best_model_path = path + '/' + 'checkpoint.pth'
+        best_model_path = path + '/' + self.args.checkpoint_filename
         self.model.load_state_dict(torch.load(best_model_path))
 
         return self.model
@@ -185,7 +185,7 @@ class Exp_Main(Exp_Basic):
 
         if test:
             print('loading model')
-            self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth'), map_location=self.device))
+            self.model.load_state_dict(torch.load(os.path.join(self.args.checkpoints, setting, self.args.checkpoint_filename), map_location=self.device))
 
         preds = []
         trues = []
@@ -231,11 +231,12 @@ class Exp_Main(Exp_Basic):
 
                 if idx % self.args.seg == 0:
                     input = batch_x.detach().cpu().numpy()
-                    gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-                    visual(test_dataset.inverse_transform(gt.reshape(-1, 1)),
-                           test_dataset.inverse_transform(pd.reshape(-1, 1)),
-                           os.path.join(folder_path, str(idx) + '.png'))
+                    input = test_dataset.inverse_transform(input[0, :, :])
+                    true = test_dataset.inverse_transform(true[0, :, :])
+                    pred = test_dataset.inverse_transform(pred[0, :, :])
+                    gt = np.concatenate((input[:, -1], true[:, -1]), axis=0)
+                    pd = np.concatenate((input[:, -1], pred[:, -1]), axis=0)
+                    visual(gt, pd, os.path.join(folder_path, str(idx) + '.png'))
 
         preds = np.array(preds)
         trues = np.array(trues)
@@ -255,7 +256,7 @@ class Exp_Main(Exp_Basic):
 
         if load:
             path = os.path.join(self.args.checkpoints, setting)
-            best_model_path = path + '/' + 'checkpoint.pth'
+            best_model_path = path + '/' + self.args.checkpoint_filename
             self.model.load_state_dict(torch.load(best_model_path))
 
         preds = []

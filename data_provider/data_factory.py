@@ -49,5 +49,5 @@ def data_provider(args, flag):
         shuffle=shuffle_flag,
         num_workers=args.num_workers,
         drop_last=drop_last)
-        
+
     return data_set, data_loader

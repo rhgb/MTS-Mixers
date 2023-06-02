@@ -3,3 +3,4 @@ checkpoints
 dataset
 test_results
 .venv
+.vscode
