@@ -2,5 +2,6 @@ __pycache__
 checkpoints
 dataset
 test_results
+results
 .venv
 .vscode

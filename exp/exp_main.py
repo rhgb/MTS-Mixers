@@ -87,7 +87,8 @@ class Exp_Main(Exp_Basic):
     def train(self, setting):
         train_data, train_loader = self._get_data(flag='train')
         vali_data, vali_loader = self._get_data(flag='val')
-        test_data, test_loader = self._get_data(flag='test')
+        if self.args.do_test:
+            test_data, test_loader = self._get_data(flag='test')
 
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
@@ -165,7 +166,10 @@ class Exp_Main(Exp_Basic):
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
             vali_loss = self.vali(vali_data, vali_loader, criterion)
-            test_loss = self.vali(test_data, test_loader, criterion)
+            if self.args.do_test:
+                test_loss = self.vali(test_data, test_loader, criterion)
+            else:
+                test_loss = 0
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(epoch + 1, train_steps, train_loss, vali_loss, test_loss))
             early_stopping(vali_loss, self.model, path)
@@ -252,7 +256,7 @@ class Exp_Main(Exp_Basic):
         return
 
     def predict(self, setting, load=False):
-        _, pred_loader = self._get_data(flag='pred')
+        pred_dataset, pred_loader = self._get_data(flag='pred')
 
         if load:
             path = os.path.join(self.args.checkpoints, setting)
@@ -289,12 +293,14 @@ class Exp_Main(Exp_Basic):
 
         preds = np.array(preds)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
+        preds = pred_dataset.inverse_transform(np.squeeze(preds, axis=0))
 
         # result save
         folder_path = './results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
+        print(f"predicted shape {preds.shape}")
         np.save(folder_path + 'real_prediction.npy', preds)
 
         return
