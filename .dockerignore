@@ -1,42 +1,26 @@
-# 排除版本控制文件和目录
+# Ignore version control files and directories
 .git
 .gitignore
 
-# 排除Python字节码文件和缓存文件
+# Ignore Python bytecode files and cache files
 *.pyc
 __pycache__
 
-# 排除本地日志和临时文件
+# Ignore local logs and temporary files
 logs/
 temp/
 
-# 排除测试数据和文档
+# Ignore test data and documentation
 test/
 docs/
 
-# 排除其他不必要的文件和目录
+# Ignore other unnecessary files and directories
 *.log
 *.swp
 .DS_Store
-checkpoints
-dataset
-test_results
-# Ignore Python bytecode files
-__pycache__/
-*.pyc
-
-# Ignore data files
-*.csv
-
-# Ignore model files
-*.npy
-
-# Ignore log files
-*.log
-
-# Ignore virtual environment files
-.venv/
-.vscode/
+checkpoints/
 dataset/
 results/
 test_results/
+.venv/
+.vscode/
