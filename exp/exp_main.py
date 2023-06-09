@@ -300,9 +300,9 @@ class Exp_Main(Exp_Basic):
         preds = pred_dataset.inverse_transform(np.squeeze(preds, axis=0))
 
         columns = pred_dataset.cols
-        pred_dates = pred_dataset.pred_dates
+        pred_dates = pred_dataset.pred_dates.rename("date")
         # combine preds into dataframe
-        preds_df = pd.DataFrame(preds, columns=columns[1:], index=pd.DatetimeIndex(data=pred_dates, name="date"))
+        preds_df = pd.DataFrame(preds, columns=columns[1:], index=pred_dates)
 
 
         # result save
