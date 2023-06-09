@@ -1,0 +1,19 @@
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+# Ignore data files
+*.csv
+
+# Ignore model files
+*.npy
+
+# Ignore log files
+*.log
+
+# Ignore virtual environment files
+.venv/
+.vscode/
+dataset/
+results/
+test_results/
