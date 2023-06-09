@@ -2,6 +2,7 @@ import os
 import time
 import warnings
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -90,9 +91,11 @@ class Exp_Main(Exp_Basic):
         if self.args.do_test:
             test_data, test_loader = self._get_data(flag='test')
 
-        path = os.path.join(self.args.checkpoints, setting)
-        if not os.path.exists(path):
-            os.makedirs(path)
+        checkpoints_path = self.args.checkpoints_path or os.path.join('./checkpoints', setting)
+        if not os.path.exists(checkpoints_path):
+            os.makedirs(checkpoints_path)
+
+        checkpoint_file_fullpath = os.path.join(checkpoints_path, self.args.checkpoint_filename)
 
         time_now = time.time()
         train_steps = len(train_loader)
@@ -172,14 +175,14 @@ class Exp_Main(Exp_Basic):
                 test_loss = 0
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(epoch + 1, train_steps, train_loss, vali_loss, test_loss))
-            early_stopping(vali_loss, self.model, path)
+            early_stopping(vali_loss, self.model, checkpoint_file_fullpath)
             if early_stopping.early_stop:
                 print("Early stopping")
                 break
 
             adjust_learning_rate(model_optim, epoch + 1, self.args)
 
-        best_model_path = path + '/' + self.args.checkpoint_filename
+        best_model_path = checkpoint_file_fullpath
         self.model.load_state_dict(torch.load(best_model_path))
 
         return self.model
@@ -189,7 +192,8 @@ class Exp_Main(Exp_Basic):
 
         if test:
             print('loading model')
-            self.model.load_state_dict(torch.load(os.path.join(self.args.checkpoints, setting, self.args.checkpoint_filename), map_location=self.device))
+            checkpoints_path = self.args.checkpoints_path or os.path.join('./checkpoints', setting)
+            self.model.load_state_dict(torch.load(os.path.join(checkpoints_path, self.args.checkpoint_filename), map_location=self.device))
 
         preds = []
         trues = []
@@ -259,8 +263,8 @@ class Exp_Main(Exp_Basic):
         pred_dataset, pred_loader = self._get_data(flag='pred')
 
         if load:
-            path = os.path.join(self.args.checkpoints, setting)
-            best_model_path = path + '/' + self.args.checkpoint_filename
+            checkpoints_path = self.args.checkpoints_path or os.path.join('./checkpoints', setting)
+            best_model_path = os.path.join(checkpoints_path, self.args.checkpoint_filename)
             self.model.load_state_dict(torch.load(best_model_path))
 
         preds = []
@@ -295,12 +299,17 @@ class Exp_Main(Exp_Basic):
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         preds = pred_dataset.inverse_transform(np.squeeze(preds, axis=0))
 
-        # result save
-        folder_path = './results/' + setting + '/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
+        columns = pred_dataset.cols
+        pred_dates = pred_dataset.pred_dates
+        # combine preds into dataframe
+        preds_df = pd.DataFrame(preds, columns=columns[1:], index=pd.DatetimeIndex(data=pred_dates, name="date"))
 
+
+        # result save
+        predict_output = self.args.predict_output or os.path.join('.', 'results', setting, 'prediction.csv')
+        if not os.path.exists(os.path.dirname(predict_output)):
+            os.makedirs(os.path.dirname(predict_output))
         print(f"predicted shape {preds.shape}")
-        np.save(folder_path + 'real_prediction.npy', preds)
+        preds_df.to_csv(predict_output, index=True, header=True)
 
         return

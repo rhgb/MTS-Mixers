@@ -20,7 +20,7 @@ if __name__ == '__main__':
     parser.add_argument('--profile', type=str, help='custom profile name')
 
     # data loader
-    parser.add_argument('--data', type=str, required=True, default='ETTh1', help='dataset type')
+    parser.add_argument('--data', type=str, default='custom', help='dataset type')
     parser.add_argument('--root_path', type=str, default='./dataset/', help='root path of the data file')
     parser.add_argument('--data_path', type=str, default='ETTh1.csv', help='data file')
     parser.add_argument('--features', type=str, default='M',
@@ -28,8 +28,9 @@ if __name__ == '__main__':
     parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
     parser.add_argument('--freq', type=str, default='h',
                         help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
-    parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
+    parser.add_argument('--checkpoints_path', type=str, help='path of model checkpoints')
     parser.add_argument('--checkpoint_filename', type=str, default='checkpoint.pth', help='filename of model checkpoints')
+    parser.add_argument('--predict_output', type=str, help='path of predict outputs')
 
     # forecasting task
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')

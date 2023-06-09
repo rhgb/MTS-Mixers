@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 from torch.utils.data import Dataset
 from sklearn.preprocessing import StandardScaler
 from utils.timefeatures import time_features
@@ -225,7 +226,8 @@ class Dataset_Custom(Dataset):
         cols = list(df_raw.columns)
         cols.remove(self.target)
         cols.remove('date')
-        df_raw = df_raw[['date'] + cols + [self.target]]
+        self.cols = ['date'] + cols + [self.target]
+        df_raw = df_raw[self.cols]
         # print(cols)
         num_train = int(len(df_raw) * 0.7)
         num_test = int(len(df_raw) * 0.2)
@@ -326,7 +328,8 @@ class Dataset_Train_Only(Dataset):
         cols = list(df_raw.columns)
         cols.remove(self.target)
         cols.remove('date')
-        df_raw = df_raw[['date'] + cols + [self.target]]
+        self.cols = ['date'] + cols + [self.target]
+        df_raw = df_raw[self.cols]
         # print(cols)
         num_train = int(len(df_raw) * 0.8)
         border1s = [0, num_train - self.seq_len]
@@ -427,7 +430,8 @@ class Dataset_Pred(Dataset):
             cols = list(df_raw.columns)
             cols.remove(self.target)
             cols.remove('date')
-        df_raw = df_raw[['date'] + cols + [self.target]]
+        self.cols = ['date'] + cols + [self.target]
+        df_raw = df_raw[self.cols]
         border1 = len(df_raw) - self.seq_len
         border2 = len(df_raw)
 
@@ -446,6 +450,7 @@ class Dataset_Pred(Dataset):
         tmp_stamp = df_raw[['date']][border1:border2]
         tmp_stamp['date'] = pd.to_datetime(tmp_stamp.date)
         pred_dates = pd.date_range(tmp_stamp.date.values[-1], periods=self.pred_len + 1, freq=self.freq)
+        self.pred_dates = pred_dates[1:]
 
         df_stamp = pd.DataFrame(columns=['date'])
         df_stamp.date = list(tmp_stamp.date.values) + list(pred_dates[1:])
@@ -487,5 +492,5 @@ class Dataset_Pred(Dataset):
     def __len__(self):
         return len(self.data_x) - self.seq_len + 1
 
-    def inverse_transform(self, data):
+    def inverse_transform(self, data) -> np.ndarray:
         return self.scaler.inverse_transform(data)
