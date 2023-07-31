@@ -1,16 +1,20 @@
 import torch
 import numpy as np
 import random
-from exp.exp_main import Exp_Main
 import argparse
 import time
+
+from exp.exp_main import Exp_Main
+from typing import List
+
 
 fix_seed = 1024
 random.seed(fix_seed)
 torch.manual_seed(fix_seed)
 np.random.seed(fix_seed)
 
-if __name__ == '__main__':
+
+def main(argv: List[str]):
     parser = argparse.ArgumentParser(description='Multivariate Time Series Forecasting')
 
     # basic config
@@ -84,7 +88,7 @@ if __name__ == '__main__':
     parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
     parser.add_argument('--test_flop', action='store_true', default=False, help='See utils/tools for usage')
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
 
@@ -168,3 +172,8 @@ if __name__ == '__main__':
             exp.predict(setting, True)
 
         torch.cuda.empty_cache()
+
+
+if __name__ == "__main__":
+    import sys
+    main(sys.argv[1:])
